@@ -173,18 +173,21 @@ const TaskScreenContainer = ({
   );
 
   useEffect(() => {
-    console.log('correctItemsChosen', correctItemsChosen)
+    // console.log('correctItemsChosen', correctItemsChosen)
   }, [correctItemsChosen])
 
-  const startHelpPlayerTimer = useCallback(() => {
+  // BUSTED
+  const startHelpPlayerTimer = useCallback((somethingSuperStupid) => {
+    // console.log("startHelpPlayerTimer:", correctItemsChosen, helpPlayerTimer, setHelpPlayerStyle);
     helpPlayerTimer.reset();
     helpPlayerTimer.setDuration(10);
     helpPlayerTimer.addCompleteCallback(() => {
-      if (correctItemsChosen === 0) {
-        console.log('correctItemsChosen in callback', correctItemsChosen)
+      console.log('correctItemsChosen in callback', correctItemsChosen, somethingSuperStupid)
+      if (somethingSuperStupid === 0) {
         setHelpPlayerStyle(true);
       }
     });
+    // We expect this to get called at some point?? Like when correctItemsChosen is changed??????????
     helpPlayerTimer.start();
   }, [correctItemsChosen, helpPlayerTimer, setHelpPlayerStyle])
 
@@ -208,7 +211,7 @@ const TaskScreenContainer = ({
       chapterTimer.stop();
       phaseTimer.stop();
       animationTimer.stop();
-      helpPlayerTimer.reset();
+      helpPlayerTimer.stop();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -218,10 +221,12 @@ const TaskScreenContainer = ({
     const onNextSaveYourself =
       !saveYourselfCompleted && activeTaskIndex > prevActiveTaskIndex;
     const switchedToSolving = onDifferentPhase && taskPhase === SOLVING;
+    console.log('correctItemsChosen (outer effect)', correctItemsChosen);
 
     // Do same thing when going to next save yourself task or a new save others task
     if (onNextSaveYourself || switchedToSolving) {
-      startHelpPlayerTimer()
+      console.log('correctItemsChosen (outer effect, in condition)', correctItemsChosen);
+      startHelpPlayerTimer(correctItemsChosen);
       startTimer(activeTask.time, true, solveCallback);
     } else if (onDifferentPhase) {
       if (taskPhase === VOTING) {
@@ -233,7 +238,7 @@ const TaskScreenContainer = ({
         startTimer(mapTransitionDuration, false, moveMapCallback);
       }
     }
-  }, [taskPhase, activeTaskIndex, prevActiveTaskIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [correctItemsChosen, taskPhase, activeTaskIndex, prevActiveTaskIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // If the player just acquired a hero badge, delay ending the solve screen to show new badge
   useEffect(() => {
