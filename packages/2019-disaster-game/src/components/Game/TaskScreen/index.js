@@ -16,7 +16,12 @@ import {
   completeTask,
   getSaveYourselfCompleted
 } from "../../../state/tasks";
-import { addBadge, getHeroBadge, addSaved, setHelpPlayer } from "../../../state/user";
+import {
+  addBadge,
+  getHeroBadge,
+  addSaved,
+  setHelpPlayer
+} from "../../../state/user";
 import { getPlayerKitItems } from "../../../state/kit";
 import usePrevious from "../../../state/hooks/usePrevious";
 import { SOLVING, VOTING, MOVING_MAP } from "../../../constants/actions";
@@ -38,6 +43,8 @@ const taskVotesDefault = {
   mostVotesTotal: 0,
   totalVotes: 0
 };
+
+const horrifyingHack = {};
 
 const TaskScreenContainer = ({
   activeTaskIndex,
@@ -76,6 +83,8 @@ const TaskScreenContainer = ({
   const prevActiveTaskIndex = usePrevious(activeTaskIndex);
   const prevTaskPhase = usePrevious(taskPhase);
   const prevHeroBadgeAcquired = usePrevious(latestHeroBadge);
+
+  horrifyingHack.correctItemsChosen = correctItemsChosen;
 
   const onTaskSelection = orbModel => {
     const voteCount = taskVotes[orbModel.type]
@@ -174,22 +183,26 @@ const TaskScreenContainer = ({
 
   useEffect(() => {
     // console.log('correctItemsChosen', correctItemsChosen)
-  }, [correctItemsChosen])
+  }, [correctItemsChosen]);
 
   // BUSTED
-  const startHelpPlayerTimer = useCallback((somethingSuperStupid) => {
+  const startHelpPlayerTimer = useCallback(() => {
     // console.log("startHelpPlayerTimer:", correctItemsChosen, helpPlayerTimer, setHelpPlayerStyle);
     helpPlayerTimer.reset();
     helpPlayerTimer.setDuration(10);
     helpPlayerTimer.addCompleteCallback(() => {
-      console.log('correctItemsChosen in callback', correctItemsChosen, somethingSuperStupid)
-      if (somethingSuperStupid === 0) {
+      console.log(
+        "correctItemsChosen in callback",
+        correctItemsChosen,
+        horrifyingHack.correctItemsChosen
+      );
+      if (horrifyingHack.correctItemsChosen === 0) {
         setHelpPlayerStyle(true);
       }
     });
     // We expect this to get called at some point?? Like when correctItemsChosen is changed??????????
     helpPlayerTimer.start();
-  }, [correctItemsChosen, helpPlayerTimer, setHelpPlayerStyle])
+  }, [correctItemsChosen, helpPlayerTimer, setHelpPlayerStyle]);
 
   // Callback must be triggered after state update
   useEffect(() => {
@@ -221,11 +234,14 @@ const TaskScreenContainer = ({
     const onNextSaveYourself =
       !saveYourselfCompleted && activeTaskIndex > prevActiveTaskIndex;
     const switchedToSolving = onDifferentPhase && taskPhase === SOLVING;
-    console.log('correctItemsChosen (outer effect)', correctItemsChosen);
+    console.log("correctItemsChosen (outer effect)", correctItemsChosen);
 
     // Do same thing when going to next save yourself task or a new save others task
     if (onNextSaveYourself || switchedToSolving) {
-      console.log('correctItemsChosen (outer effect, in condition)', correctItemsChosen);
+      console.log(
+        "correctItemsChosen (outer effect, in condition)",
+        correctItemsChosen
+      );
       startHelpPlayerTimer(correctItemsChosen);
       startTimer(activeTask.time, true, solveCallback);
     } else if (onDifferentPhase) {
