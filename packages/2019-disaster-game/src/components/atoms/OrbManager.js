@@ -258,6 +258,7 @@ const OrbManager = ({
                 orbId={orb.orbId}
                 imageSVG={orb.imageSVG}
                 imgAlt={orb.imgAlt}
+                type={orb.type}
                 size={ORB_CONFIG.orbSize}
                 addOrbScore={addOrbScore}
                 setOrbTouched={setOrbTouched}

@@ -1,13 +1,16 @@
 import { createReducer, createSelector } from "redux-starter-kit";
 import size from "lodash/size";
-import itemTypes, { food, water, firstAidKit } from "../constants/items";
+import itemTypes, { food, water, firstAidKit, dustMask, protectiveGear } from "../constants/items";
 
 // INITIAL STATE
 // items will be a list of objects, where each object is an id and a quantity
 // the id is related to the items reducer
 const initialState = {
   items: itemTypes,
-  playerKit: {},
+  playerKit: {
+    [dustMask]: true,
+    [protectiveGear]: true,
+  },
   matchLockItemsInKit: {
     [food]: 0,
     [water]: 0,

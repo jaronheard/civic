@@ -16,7 +16,7 @@ import {
   completeTask,
   getSaveYourselfCompleted
 } from "../../../state/tasks";
-import { addBadge, getHeroBadge, addSaved } from "../../../state/user";
+import { addBadge, getHeroBadge, addSaved, setHelpPlayer } from "../../../state/user";
 import { getPlayerKitItems } from "../../../state/kit";
 import usePrevious from "../../../state/hooks/usePrevious";
 import { SOLVING, VOTING, MOVING_MAP } from "../../../constants/actions";
@@ -52,7 +52,8 @@ const TaskScreenContainer = ({
   tasksForEnvironment,
   activeEnvironment,
   addHeroBadge,
-  addToSaved
+  addToSaved,
+  setHelpPlayerStyle
 }) => {
   const [shouldEndChapter, setShouldEndChapter] = useState(false);
   const [displayedFinalBadge, setDisplayedFinalBadge] = useState(false);
@@ -69,6 +70,8 @@ const TaskScreenContainer = ({
   const [chapterTimer] = useState(new Timer());
   const [phaseTimer] = useState(new Timer());
   const [animationTimer] = useState(new Timer());
+  const [helpPlayerTimer] = useState(new Timer());
+
   // Track previous values
   const prevActiveTaskIndex = usePrevious(activeTaskIndex);
   const prevTaskPhase = usePrevious(taskPhase);
@@ -105,6 +108,7 @@ const TaskScreenContainer = ({
   const solveCallback = () => {
     setCorrectItemsChosen(0);
     setDisplayBadge(false);
+    setHelpPlayerStyle(false);
     if (shouldEndChapter && taskPhase === SOLVING) {
       setFinishedFinalSolvePhase(true);
     }
@@ -168,6 +172,22 @@ const TaskScreenContainer = ({
     ]
   );
 
+  useEffect(() => {
+    console.log('correctItemsChosen', correctItemsChosen)
+  }, [correctItemsChosen])
+
+  const startHelpPlayerTimer = useCallback(() => {
+    helpPlayerTimer.reset();
+    helpPlayerTimer.setDuration(10);
+    helpPlayerTimer.addCompleteCallback(() => {
+      if (correctItemsChosen === 0) {
+        console.log('correctItemsChosen in callback', correctItemsChosen)
+        setHelpPlayerStyle(true);
+      }
+    });
+    helpPlayerTimer.start();
+  }, [correctItemsChosen, helpPlayerTimer, setHelpPlayerStyle])
+
   // Callback must be triggered after state update
   useEffect(() => {
     if (doVoteCallback === true) {
@@ -188,6 +208,7 @@ const TaskScreenContainer = ({
       chapterTimer.stop();
       phaseTimer.stop();
       animationTimer.stop();
+      helpPlayerTimer.reset();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -200,6 +221,7 @@ const TaskScreenContainer = ({
 
     // Do same thing when going to next save yourself task or a new save others task
     if (onNextSaveYourself || switchedToSolving) {
+      startHelpPlayerTimer()
       startTimer(activeTask.time, true, solveCallback);
     } else if (onDifferentPhase) {
       if (taskPhase === VOTING) {
@@ -309,7 +331,8 @@ TaskScreenContainer.propTypes = {
   saveYourselfCompleted: PropTypes.bool,
   addHeroBadge: PropTypes.func,
   addToSaved: PropTypes.func,
-  latestHeroBadge: PropTypes.oneOf([PropTypes.shape({}), null])
+  latestHeroBadge: PropTypes.oneOf([PropTypes.shape({}), null]),
+  setHelpPlayerStyle: PropTypes.func
 };
 
 const mapStateToProps = state => ({
@@ -330,7 +353,8 @@ const mapDispatchToProps = dispatch => ({
   addNextTask: bindActionCreators(addTask, dispatch),
   completeActiveTask: bindActionCreators(completeTask, dispatch),
   addHeroBadge: bindActionCreators(addBadge, dispatch),
-  addToSaved: bindActionCreators(addSaved, dispatch)
+  addToSaved: bindActionCreators(addSaved, dispatch),
+  setHelpPlayerStyle: bindActionCreators(setHelpPlayer, dispatch)
 });
 
 export default connect(

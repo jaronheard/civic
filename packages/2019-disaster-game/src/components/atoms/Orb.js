@@ -3,7 +3,10 @@ import { PropTypes } from "prop-types";
 /** @jsx jsx */
 import { jsx, css } from "@emotion/core";
 import { TweenMax, Power2 } from "gsap/TweenMax";
+import { connect } from "react-redux";
 
+import { getHelpPlayer } from '../../state/user';
+import { getActiveTaskData } from '../../state/tasks';
 import RadialGauge from "./RadialGauge";
 
 const orbContainerStyle = css`
@@ -38,7 +41,7 @@ const defaultState = {
 
 const pressSuccessDuration = 0.5;
 
-export default class Orb extends PureComponent {
+class Orb extends PureComponent {
   constructor(props) {
     super(props);
     this.state = defaultState;
@@ -97,12 +100,17 @@ export default class Orb extends PureComponent {
   render() {
     const { isActive, isComplete } = this.state;
     // eslint-disable-next-line no-unused-vars
-    const { size, imageSVG, imgAlt } = this.props;
+    const { size, imageSVG, imgAlt, type, useHelpPlayerStyle, activeTask } = this.props;
+    let orbSize = size;
+
+    if (useHelpPlayerStyle && activeTask.requiredItem === type) {
+      orbSize = size * 1.5;
+    }
 
     const sizeStyle = css`
-      height: ${size}px;
-      width: ${size}px;
-      border-radius: ${size}px;
+      height: ${orbSize}px;
+      width: ${orbSize}px;
+      border-radius: ${orbSize}px;
 
       &.circle-press-style {
         transition: background-color 1000ms linear;
@@ -117,8 +125,8 @@ export default class Orb extends PureComponent {
 
     const absoluteStyle = css`
       position: absolute;
-      top: -${size / 2}px;
-      left: -${size / 2}px;
+      top: -${orbSize / 2}px;
+      left: -${orbSize / 2}px;
 
       &.circle-press-style {
         transition: background-color 1000ms linear;
@@ -151,7 +159,7 @@ export default class Orb extends PureComponent {
         <div css={absoluteStyle} className={orbClass}>
           <RadialGauge
             isActive={isActive}
-            size={size}
+            size={orbSize}
             duration={pressSuccessDuration}
           />
         </div>
@@ -179,5 +187,15 @@ Orb.propTypes = {
   imageSVG: PropTypes.string,
   imgAlt: PropTypes.string,
   size: PropTypes.number,
-  delay: PropTypes.number
+  delay: PropTypes.number,
+  activeTask: PropTypes.shape({}),
+  type: PropTypes.string,
+  useHelpPlayerStyle: PropTypes.bool
 };
+
+const mapStateToProps = state => ({
+  useHelpPlayerStyle: getHelpPlayer(state),
+  activeTask: getActiveTaskData(state)
+});
+
+export default connect(mapStateToProps)(Orb);
