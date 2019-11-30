@@ -14,6 +14,7 @@ import BaseMap from "../BaseMap/BaseMap";
 import CivicSandboxMap from "../MultiLayerMap/MultiLayerMap";
 import CivicSandboxTooltip from "../CivicSandboxMap/CivicSandboxTooltip";
 import SandboxDrawer from "./SandboxDrawer";
+import Dialog from "../Dialog/Dialog";
 
 const baseMapWrapper = css(`
   height: 80vh;
@@ -44,6 +45,8 @@ const Sandbox = ({
   fetchSlideDataByDate,
   drawerVisible,
   toggleDrawer,
+  dialogVisible,
+  toggleDialog,
   styles,
   onFoundationClick,
   onSlideHover,
@@ -134,6 +137,9 @@ const Sandbox = ({
             {tooltipInfo && <CivicSandboxTooltip tooltipData={tooltipInfo} />}
           </CivicSandboxMap>
         </BaseMap>
+        <Dialog open={dialogVisible} onClose={toggleDialog}>
+          <h1>Welcome to Civic Sandbox</h1>
+        </Dialog>
       </div>
     </div>
   );
@@ -167,6 +173,8 @@ Sandbox.propTypes = {
   fetchSlideDataByDate: func.isRequired,
   drawerVisible: bool.isRequired,
   toggleDrawer: func.isRequired,
+  dialogVisible: bool.isRequired,
+  toggleDialog: func.isRequired,
   styles: string,
   onFoundationClick: func,
   onSlideHover: func,
