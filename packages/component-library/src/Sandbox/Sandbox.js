@@ -45,7 +45,11 @@ const Sandbox = ({
   updateSlide,
   fetchSlideDataByDate,
   drawerVisible,
+  drawerVisualization,
+  drawerLayerSelector,
   toggleDrawer,
+  toggleDrawerLayerSelector,
+  toggleDrawerVisualization,
   dialogVisible,
   toggleDialog,
   styles,
@@ -96,8 +100,14 @@ const Sandbox = ({
           selectedSlide={selectedSlide}
           onChange={updateSlide}
           selectedPackage={selectedPackage}
+          toggleDialog={toggleDialog}
           toggleDrawer={toggleDrawer}
+          toggleLayerSelector={toggleDrawerLayerSelector}
+          toggleVisualization={toggleDrawerVisualization}
           drawerVisible={drawerVisible}
+          dialogVisible={dialogVisible}
+          drawerVisualization={drawerVisualization}
+          drawerLayerSelector={drawerLayerSelector}
           defaultSlides={defaultSlides}
           slideData={slideData}
           fetchSlideByDate={fetchSlideDataByDate}
@@ -179,7 +189,11 @@ Sandbox.propTypes = {
   updateSlide: func.isRequired,
   fetchSlideDataByDate: func.isRequired,
   drawerVisible: bool.isRequired,
+  drawerVisualization: bool.isRequired,
+  drawerLayerSelector: bool.isRequired,
   toggleDrawer: func.isRequired,
+  toggleDrawerLayerSelector: func.isRequired,
+  toggleDrawerVisualization: func.isRequired,
   dialogVisible: bool.isRequired,
   toggleDialog: func.isRequired,
   styles: string,
