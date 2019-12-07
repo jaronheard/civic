@@ -12,6 +12,7 @@ import civicFormat from "../utils/civicFormat";
 import { ICONS } from "../styleConstants";
 import Placeholder from "../Placeholder/Placeholder";
 import PolygonPreview from "../PolygonPreview/PolygonPreview";
+import VisualizationColors from "../_Themes/VisualizationColors";
 
 const container = css`
   position: absolute;
@@ -180,18 +181,29 @@ const viz = css`
 //   </div>
 // );
 
-const createLineViz = (data, title, xLabel, yLabel, xFormat, yFormat, id) => {
+const createLineViz = (
+  data,
+  title,
+  xLabel,
+  yLabel,
+  xFormat,
+  yFormat,
+  id,
+  feature
+) => {
   const yForm = yFormat === "percent" ? "percentage" : yFormat;
   return (
     <div css={viz} key={id}>
       <h3>
-        <PolygonPreview />
+        <PolygonPreview
+          feature={feature}
+          stroke={VisualizationColors.categorical.pink.hex}
+          strokeWidth={30}
+          svgCss={css(`height: 1.125rem;`)}
+          padding={30}
+        />
         {title}
       </h3>
-      <p>
-        This is a brief description of the layer, including what data is being
-        represented.
-      </p>
       <LineChart
         data={data}
         xLabel={xLabel}
@@ -269,7 +281,8 @@ const CivicDashboard = props => {
           data.primaryFormat,
           "year",
           data.primaryFormat,
-          data.id
+          data.id,
+          data.feature
         )
       : placeholder;
 
@@ -352,6 +365,7 @@ CivicDashboard.propTypes = {
   data: shape({
     id: number,
     displayName: string,
+    feature: shape({}),
     featureProperties: shape({}),
     colorKey: string,
     primaryFormat: string

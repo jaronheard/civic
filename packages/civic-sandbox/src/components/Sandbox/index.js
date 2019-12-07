@@ -30,6 +30,7 @@ import {
   getSelectedFoundationData,
   getSelectedSlidesData,
   getSelectedPackage,
+  getSelectedPackageDescription,
   getSelectedFoundation,
   getSelectedSlides,
   getLayerSlides,
@@ -96,7 +97,12 @@ class SandboxComponent extends React.Component {
   }
 
   updateSlide = event => {
-    const { selectedSlide, allSlides, setSlides: updateSetSlides } = this.props;
+    const {
+      selectedSlide,
+      allSlides,
+      setSlides: updateSetSlides,
+      selectedSlidesData
+    } = this.props;
     const slideName = event.target.value;
 
     const orderSelectedSlides = [...allSlides].reduce((a, c, i) => {
@@ -113,7 +119,22 @@ class SandboxComponent extends React.Component {
           ...selectedSlide.slice(orderSelectedSlides[slideName])
         ];
 
-    updateSetSlides(reorderSelectedSlides);
+    const choroplethSlidesData = selectedSlidesData.filter(
+      slideDatum => slideDatum.visualization.map.mapType === "ChoroplethMap"
+    );
+    const choroplethSlides = choroplethSlidesData.map(
+      slideDatum => slideDatum.displayName
+    );
+    // Only allow one choropleth to be selected at a time
+    const reorderSelectedSlidesOnlyOneChoropleth = choroplethSlides.includes(
+      slideName
+    )
+      ? reorderSelectedSlides.filter(
+          slide => slide === slideName || !choroplethSlides.includes(slide)
+        )
+      : reorderSelectedSlides;
+
+    updateSetSlides(reorderSelectedSlidesOnlyOneChoropleth);
   };
 
   toggleDrawer = () => {
@@ -156,6 +177,7 @@ class SandboxComponent extends React.Component {
       setPackage: renderSetPackage,
       sandboxData,
       selectedPackage,
+      selectedPackageDescription,
       selectedFoundation,
       selectedSlide,
       selectedSlidesData,
@@ -197,6 +219,7 @@ class SandboxComponent extends React.Component {
         styles={styles}
         data={sandboxData}
         selectedPackage={selectedPackage}
+        selectedPackageDescription={selectedPackageDescription}
         selectedFoundation={selectedFoundation}
         selectedSlide={selectedSlide}
         drawerVisible={drawerVisible}
@@ -229,6 +252,7 @@ export default connect(
     isError: isAnyError(state),
     sandboxData: getSandboxData(state),
     selectedPackage: getSelectedPackage(state),
+    selectedPackageDescription: getSelectedPackageDescription(state),
     selectedPackageData: getSelectedPackageData(state),
     selectedFoundation: getSelectedFoundation(state),
     slidesData: getSlidesData(state),
@@ -277,6 +301,7 @@ SandboxComponent.propTypes = {
   }),
   slidesData: arrayOf(shape({})),
   selectedPackage: string,
+  selectedPackageDescription: string,
   selectedSlide: arrayOf(string),
   selectedSlidesData: arrayOf(shape({})),
   allSlides: arrayOf(shape({})),

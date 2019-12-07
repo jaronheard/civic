@@ -38,6 +38,7 @@ const Sandbox = ({
   defaultFoundation,
   defaultSlides,
   selectedPackage,
+  selectedPackageDescription,
   selectedFoundation,
   selectedSlide,
   slideData,
@@ -101,6 +102,7 @@ const Sandbox = ({
           selectedSlide={selectedSlide}
           onChange={updateSlide}
           selectedPackage={selectedPackage}
+          selectedPackageDescription={selectedPackageDescription}
           toggleDialog={toggleDialog}
           toggleDrawer={toggleDrawer}
           toggleLayerSelector={toggleDrawerLayerSelector}
@@ -182,6 +184,7 @@ Sandbox.propTypes = {
     })
   ).isRequired,
   selectedPackage: string.isRequired,
+  selectedPackageDescription: string.isRequired,
   selectedFoundation: string.isRequired,
   selectedSlide: arrayOf(string).isRequired,
   slideData: arrayOf(shape({})).isRequired,
