@@ -16,6 +16,7 @@ import CivicSandboxTooltip from "../CivicSandboxMap/CivicSandboxTooltip";
 import SandboxDrawer from "./SandboxDrawer";
 import SandboxIntroDialog from "./SandboxIntroDialog";
 import SandboxLegend from "./SandboxLegend";
+import "./sandboxGeocoder.css";
 
 const baseMapWrapper = css(`
   height: 100vh;
@@ -143,6 +144,9 @@ const Sandbox = ({
           bboxData={layerData.length > 0 ? layerData[0].data : []}
           bboxPadding={50}
           useScrollZoom
+          geocoder
+          geocoderOptions={{ zoom: 13 }}
+          geocoderPosition="top-left"
         >
           <CivicSandboxMap
             mapLayers={layerData}
