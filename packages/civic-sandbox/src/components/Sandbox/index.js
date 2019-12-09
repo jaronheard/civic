@@ -30,6 +30,7 @@ import {
   getSelectedFoundationData,
   getSelectedSlidesData,
   getSelectedPackage,
+  getSelectedPackageDescription,
   getSelectedFoundation,
   getSelectedSlides,
   getLayerSlides,
@@ -43,10 +44,18 @@ class SandboxComponent extends React.Component {
   constructor() {
     super();
     this.state = {
-      drawerVisible: true
+      drawerVisible: true,
+      dialogVisible: true,
+      drawerVisualization: false,
+      drawerLayerSelector: false,
+      drawerExplore: true
     };
     this.updateSlide = this.updateSlide.bind(this);
     this.toggleDrawer = this.toggleDrawer.bind(this);
+    this.toggleDialog = this.toggleDialog.bind(this);
+    this.toggleDrawerVisualization = this.toggleDrawerVisualization.bind(this);
+    this.toggleDrawerLayerSelector = this.toggleDrawerLayerSelector.bind(this);
+    this.toggleDrawerExplore = this.toggleDrawerExplore.bind(this);
   }
 
   componentDidMount() {
@@ -91,7 +100,12 @@ class SandboxComponent extends React.Component {
   }
 
   updateSlide = event => {
-    const { selectedSlide, allSlides, setSlides: updateSetSlides } = this.props;
+    const {
+      selectedSlide,
+      allSlides,
+      setSlides: updateSetSlides,
+      selectedSlidesData
+    } = this.props;
     const slideName = event.target.value;
 
     const originalSelectedSlideOrder = [...allSlides].map(s => {
@@ -113,7 +127,23 @@ class SandboxComponent extends React.Component {
           ...originalSelectedSlideOrder.filter(s => s.checked).map(s => s.label)
         ];
 
-    updateSetSlides(reorderSelectedSlides);
+    const choroplethSlidesData = selectedSlidesData.filter(
+      slideDatum =>
+        slideDatum.visualization.map.mapType === "ChoroplethMap" ||
+        slideDatum.visualization.map.mapType === "vtChoroplethMap"
+    );
+    const choroplethSlides = choroplethSlidesData.map(
+      slideDatum => slideDatum.displayName
+    );
+    // Only allow one choropleth to be selected at a time
+    const reorderSelectedSlidesOnlyOneChoropleth = choroplethSlides.includes(
+      slideName
+    )
+      ? reorderSelectedSlides.filter(
+          slide => slide === slideName || !choroplethSlides.includes(slide)
+        )
+      : reorderSelectedSlides;
+    updateSetSlides(reorderSelectedSlidesOnlyOneChoropleth);
   };
 
   toggleDrawer = () => {
@@ -121,6 +151,41 @@ class SandboxComponent extends React.Component {
       return {
         drawerVisible: !prevState.drawerVisible
       };
+    });
+  };
+
+  toggleDialog = () => {
+    this.setState(prevState => {
+      return {
+        dialogVisible: !prevState.dialogVisible
+      };
+    });
+  };
+
+  toggleDrawerVisualization = () => {
+    this.setState({
+      drawerVisualization: true,
+      drawerLayerSelector: false,
+      drawerExplore: false,
+      drawerVisible: true
+    });
+  };
+
+  toggleDrawerLayerSelector = () => {
+    this.setState({
+      drawerVisualization: false,
+      drawerLayerSelector: true,
+      drawerExplore: false,
+      drawerVisible: true
+    });
+  };
+
+  toggleDrawerExplore = () => {
+    this.setState({
+      drawerVisualization: false,
+      drawerLayerSelector: false,
+      drawerExplore: true,
+      drawerVisible: true
     });
   };
 
@@ -132,6 +197,7 @@ class SandboxComponent extends React.Component {
       setPackage: renderSetPackage,
       sandboxData,
       selectedPackage,
+      selectedPackageDescription,
       selectedFoundation,
       selectedSlide,
       selectedSlidesData,
@@ -149,7 +215,13 @@ class SandboxComponent extends React.Component {
       selectedFoundationDatum,
       foundationClick
     } = this.props;
-    const { drawerVisible } = this.state;
+    const {
+      drawerVisible,
+      dialogVisible,
+      drawerVisualization,
+      drawerLayerSelector,
+      drawerExplore
+    } = this.state;
 
     const styles = css(`
       font-family: "Roboto Condensed", "Helvetica Neue", Helvetica, sans-serif;
@@ -162,14 +234,23 @@ class SandboxComponent extends React.Component {
         updateFoundation={renderSetFoundation}
         updateSlide={this.updateSlide}
         toggleDrawer={this.toggleDrawer}
+        toggleDialog={this.toggleDialog}
+        toggleDrawerLayerSelector={this.toggleDrawerLayerSelector}
+        toggleDrawerVisualization={this.toggleDrawerVisualization}
+        toggleDrawerExplore={this.toggleDrawerExplore}
         fetchSlideDataByDate={renderFetchSlideByDate}
         updatePackage={renderSetPackage}
         styles={styles}
         data={sandboxData}
         selectedPackage={selectedPackage}
+        selectedPackageDescription={selectedPackageDescription}
         selectedFoundation={selectedFoundation}
         selectedSlide={selectedSlide}
         drawerVisible={drawerVisible}
+        dialogVisible={dialogVisible}
+        drawerVisualization={drawerVisualization}
+        drawerLayerSelector={drawerLayerSelector}
+        drawerExplore={drawerExplore}
         slideData={selectedSlidesData}
         defaultSlides={slidesData}
         foundationData={selectedFoundationData}
@@ -198,6 +279,7 @@ export default connect(
     isError: isAnyError(state),
     sandboxData: getSandboxData(state),
     selectedPackage: getSelectedPackage(state),
+    selectedPackageDescription: getSelectedPackageDescription(state),
     selectedPackageData: getSelectedPackageData(state),
     selectedFoundation: getSelectedFoundation(state),
     slidesData: getSlidesData(state),
@@ -250,6 +332,7 @@ SandboxComponent.propTypes = {
   }),
   slidesData: arrayOf(shape({})),
   selectedPackage: string,
+  selectedPackageDescription: string,
   selectedSlide: arrayOf(string),
   selectedSlidesData: arrayOf(shape({})),
   allSlides: arrayOf(shape({})),
