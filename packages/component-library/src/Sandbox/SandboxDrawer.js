@@ -4,7 +4,7 @@ import { string, bool, func, arrayOf, shape } from "prop-types";
 import MenuIcon from "@material-ui/icons/Menu";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import LayersIcon from "@material-ui/icons/Layers";
-import CollectionsIcon from "@material-ui/icons/Collections";
+import BookIcon from "@material-ui/icons/Book";
 import SandboxDrawerLayerSelector from "./SandboxDrawerLayerSelector";
 import SandboxDrawerVisualization from "./SandboxDrawerVisualization";
 import SandboxDrawerExplore from "./SandboxDrawerExplore";
@@ -56,6 +56,7 @@ const SandboxDrawer = props => {
     selectedPackage,
     selectedPackageDescription,
     toggleDialog,
+    toggleContributeDialog,
     toggleDrawer,
     toggleVisualization,
     toggleLayerSelector,
@@ -89,16 +90,29 @@ const SandboxDrawer = props => {
     opacity: 1;
   `);
 
+  const disabled = css(`
+    background: #AAA4AB;
+  `);
+
   const active = css(`
     opacity: 1;
     @media (min-width: 500px) {
-      border-left: 4px solid #F3F2F3;
+      border-left: 4px solid #201024;
     }
     @media (max-width: 500px) {
       border-bottom: 4px solid #F3F2F3;
       box-sizing: border-box;
     }
   `);
+
+  const allVectorTileLayers =
+    !areSlidesLoading && allSlides
+      ? !foundationData.every(slide =>
+          ["vtChoroplethMap", "vtScatterPlotMap"].includes(slide)
+        )
+      : true;
+
+  const nothing = () => {};
 
   return (
     <div css={drawerVisible ? menuOpen : menuClosed}>
@@ -128,11 +142,15 @@ const SandboxDrawer = props => {
             <MenuIcon css={buttonIcon} />
           </div>
           <div
-            onClick={toggleVisualization}
-            onKeyPress={toggleVisualization}
+            onClick={allVectorTileLayers ? nothing : toggleVisualization}
+            onKeyPress={allVectorTileLayers ? nothing : toggleVisualization}
             role="button"
             tabIndex={0}
-            css={[buttonStyle, drawerVisible && drawerVisualization && active]}
+            css={[
+              buttonStyle,
+              drawerVisible && drawerVisualization && active,
+              allVectorTileLayers && disabled
+            ]}
           >
             <TimelineIcon css={buttonIcon} />
           </div>
@@ -152,7 +170,7 @@ const SandboxDrawer = props => {
             tabIndex={0}
             css={[buttonStyle, drawerVisible && drawerExplore && active]}
           >
-            <CollectionsIcon css={buttonIcon} />
+            <BookIcon css={buttonIcon} />
           </div>
         </div>
       </div>
@@ -205,6 +223,7 @@ const SandboxDrawer = props => {
               areSlidesLoading={areSlidesLoading}
               errors={errors}
               updateSlideKey={updateSlideKey}
+              toggleDrawer={toggleDrawer}
             />
           )}
           {drawerExplore && (
@@ -214,6 +233,7 @@ const SandboxDrawer = props => {
               updatePackage={updatePackage}
               errors={errors}
               toggleLayerSelector={toggleLayerSelector}
+              toggleContributeDialog={toggleContributeDialog}
             />
           )}
         </div>
@@ -231,6 +251,7 @@ SandboxDrawer.propTypes = {
   selectedPackageDescription: string,
   toggleDialog: func,
   toggleDrawer: func,
+  toggleContributeDialog: func,
   toggleVisualization: func,
   toggleLayerSelector: func,
   toggleExplore: func,
