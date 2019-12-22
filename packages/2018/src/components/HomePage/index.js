@@ -94,7 +94,7 @@ const HomePage = () => {
       <div className="content-wrapper">
         <h1>CIVIC</h1>
         <p className="page-subtitle">
-          A system for public data, built on public collaboration
+          Making public information, public knowledge
         </p>
         <div className="intro-wrapper">
           <video
